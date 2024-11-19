@@ -1,0 +1,5 @@
+redis
+polars
+duckdb
+chdb
+psutil
