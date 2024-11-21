@@ -17,3 +17,15 @@ def benchmark(tool_name, action):
     print(
         f"{tool_name}: Time={end_time - start_time:.2f}s, Memory={mem_after - mem_before:.2f}MB"
     )
+
+
+def load_to_redis_benchmark(tool_name: str):
+    benchmark()
+
+
+def benchmark_start(work_dict: dict[str, dict]):
+
+    for tool_name, details in work_dict.items():
+        for format in details["formats"]:
+            for work in details["works"]:
+                redis_key = f"{tool_name}:{format}:{work}"

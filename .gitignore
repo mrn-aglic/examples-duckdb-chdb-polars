@@ -3,4 +3,5 @@
 .DS_Store
 __pycache__
 virtualenvs
-data
+data/yellow*
+redis_data

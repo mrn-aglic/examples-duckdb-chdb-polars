@@ -1,6 +1,6 @@
 import duckdb
 
-from app.redis.helper import store_df_to_redis
+from app.redis import helper as redis_helper
 
 
 def load_csv_df(file_path: str):
@@ -12,7 +12,8 @@ def load_csv_df(file_path: str):
     """
     ).fetchdf()
 
-    print(f"shape of df:> {df.shape}")
+    print(f"DataFrame shape:> {df.shape}")
+
     conn.close()
 
     return df
@@ -21,11 +22,13 @@ def load_csv_df(file_path: str):
 def load_csv(file_path: str):
     conn = duckdb.connect()
 
-    data = conn.execute(
+    result = conn.execute(
         f"""
-        SELECT * FROM read_csv('{file_path}')
+        SELECT * FROM read_csv('{file_path}', header=TRUE, auto_detect=TRUE)
     """
-    ).fetchall()
+    )
+
+    data = result.fetchall()
 
     print(f"#rows:> {len(data)}")
     conn.close()
@@ -59,13 +62,13 @@ def load_csvs_df():
     conn.close()
 
 
-def transfer_df_data(file_paths: list[str]):
+def transfer_df_data(file_paths: list[str], key: str):
     for file_path in file_paths:
         df = load_csv_df(file_path)
-        store_df_to_redis(df)
+        redis_helper.store_df_to_redis(df, key)
 
 
-def transfer_data(file_paths: list[str]):
+def transfer_data(file_paths: list[str], key: str):
     for file_path in file_paths:
         df = load_csv(file_path)
-        store_df_to_redis(df)
+        redis_helper.store_to_redis(df, key)
