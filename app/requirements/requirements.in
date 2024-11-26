@@ -3,3 +3,5 @@ polars
 duckdb
 chdb
 psutil
+pandas
+memory-profiler
