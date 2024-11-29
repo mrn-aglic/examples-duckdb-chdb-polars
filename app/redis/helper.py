@@ -1,4 +1,4 @@
-import json
+from typing import Iterable
 
 import pandas as pd
 import polars as pl
@@ -9,33 +9,27 @@ def _get_redis():
     return StrictRedis(host="redis", port=6379, db=0)
 
 
-def store_to_redis(data: list[tuple | dict], key_prefix: str):
+def _get_iterable(df: pl.DataFrame | pd.DataFrame) -> Iterable:
+    return df.iterrows() if isinstance(df, pd.DataFrame) else enumerate(df.to_dicts())
 
+
+def store_df_to_redis(
+    df: pd.DataFrame | pl.DataFrame, key_prefix: str, offset: int = 0
+):
     r = _get_redis()
 
-    for idx, row in enumerate(data):
-        key = f"{key_prefix}_{idx}"
+    iterable = _get_iterable(df)
 
-        if isinstance(row, dict):
-            r.hset(key, mapping=row)
-        else:
-            r.hset(key, str(idx), json.dumps(row))
+    with r.pipeline() as pipe:
 
+        for idx, row in iterable:
+            num = (idx + 1) + offset
 
-# REQUIREMENT: want to store each row with a unique key - use index
-# we want to store the value as a dictionary
-def store_df_to_redis(df: pd.DataFrame | pl.DataFrame, key_prefix: str):
+            key = f"{key_prefix}:{num}"
 
-    r = _get_redis()
+            if not isinstance(row, dict):
+                row = row.to_dict()
 
-    if isinstance(df, pd.DataFrame):
+            pipe.hset(key, mapping=row)
 
-        for idx, row in df.iterrows():
-            key = f"{key_prefix}_{idx}"
-            r.hset(key, mapping=row.to_dict())
-
-    elif isinstance(df, pl.DataFrame):
-
-        for idx, row in enumerate(df.to_dicts()):
-            key = f"{key_prefix}_{idx}"
-            r.hset(key, mapping=row)
+        pipe.execute()

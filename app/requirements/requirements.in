@@ -5,3 +5,4 @@ chdb
 psutil
 pandas
 memory-profiler
+pyarrow

@@ -29,6 +29,7 @@ FILE_PATHS = [
 # FILE_PATTERN = "data/yellow_tripdata_20*.csv" # for all files - use at your own risk
 FILE_PATTERN = "data/yellow_tripdata_2016-03.csv"
 # FILE_PATTERN = "data/testing.csv"
+# FILE_PATTERN = "data/sample_100_rows.csv"
 
 TEST_LOAD_CSV_TO_MEMORY = [
     TestSetting(

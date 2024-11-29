@@ -2,20 +2,38 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     volumes:
       - ./redis_data:/data
     ports:
       - "6379:6379"
 
-  app:
+  app_store_to_redis:
     build:
       context: ./app
-    container_name: python_app
+    container_name: store_to_redis
     depends_on:
-      - redis
-    environment:
-      - ENTRY:$ENTRY
+      redis:
+        condition: service_healthy
     volumes:
       - ./app:/app
       - ./data:/data
-    command: python -m app.main
+    command: python -m app.store_to_redis
+
+
+#  app_run_tests:
+#    build:
+#      context: ./app
+#    container_name: run_tests
+#    depends_on:
+#      redis:
+#        condition: service_healthy
+#    volumes:
+#      - ./app:/app
+#      - ./data:/data
+#    command: python -m app.run_tests
