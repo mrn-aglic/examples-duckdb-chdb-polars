@@ -1,6 +1,7 @@
 # DuckDB, ChDB, Polars examples
 
 This repo was created for the purpose of this medium article:
+https://medium.com/@MarinAgli1/comparing-duckdb-chdb-and-polars-like-a-noob-ad74584456b9
 
 When running the tests mentioned in the article, I ran the tests using
 ```shell
